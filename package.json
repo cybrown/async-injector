@@ -1,0 +1,33 @@
+{
+  "name": "async-injector",
+  "version": "0.1.0",
+  "description": "Dependency Injection library",
+  "scripts": {
+    "test": "grunt test"
+  },
+  "author": "Cy Brown <cy.brown59@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/cybrown/async-injector.git"
+  },
+  "keywords": [
+    "async-injector",
+    "di",
+    "dependency injection",
+    "service container",
+    "ioc",
+    "inversion of control",
+    "injection",
+    "component"
+  ],
+  "license": "MIT",
+  "dependencies": {
+  },
+  "devDependencies": {
+    "q": "^1.0.1",
+    "grunt-contrib-jshint": "^0.10.0",
+    "should": "~2.1.1",
+    "grunt-mocha-cli": "~1.4.0",
+    "grunt": "~0.4.2"
+  }
+}
