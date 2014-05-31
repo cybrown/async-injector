@@ -68,6 +68,19 @@ describe('AsyncInjector', function () {
             }]);
         });
 
+        it ('should return undefined', function (done) {
+            injector.factory('give_undef1', function () {
+
+            });
+            injector.factory('give_undef2', function (give_undef1) {
+                return give_undef1;
+            });
+            injector.inject(function (give_undef2) {
+                (give_undef2 === undefined).should.be.ok;
+                done();
+            });
+        });
+
         it ('should throw if injectable is not array or function', function () {
             (function () {
                 injector.inject("test");
@@ -201,7 +214,7 @@ describe('AsyncInjector', function () {
             injector.factory('once', [function () {
                 setTimeout(done);
                 return Promise.delay(10).then(function () {
-                    return null;
+
                 });
             }]);
             injector.inject(['once', function () {}]);
@@ -211,7 +224,7 @@ describe('AsyncInjector', function () {
         it ('should get a loading component', function (done) {
             injector.factory('once2', function () {
                 return Promise.delay(10).then(function () {
-                    return null;
+
                 });
             });
             injector.inject(['once2', function () {}]);
@@ -267,9 +280,9 @@ describe('AsyncInjector', function () {
 
         it ('should reject the promise on timeout', function (done) {
             injector.factory('never', [function () {
-                return new Promise(function () {});
+                return Promise.delay(100);
             }]);
-            injector.injectTimeout(10, ['never', function (never) {
+            injector.injectTimeout(50, ['never', function (never) {
 
             }]).catch(function () {
                 done();
@@ -278,9 +291,7 @@ describe('AsyncInjector', function () {
 
         it ('should cancel a callback if timeout is reached', function (done) {
             injector.factory('never2', [function () {
-                return Promise.delay(150).then(function () {
-                    return 1;
-                });
+                return Promise.delay(150);
             }]);
             injector.injectTimeout(100, ['never2', function (never2) {
                 return new Promise(function () {});
@@ -298,7 +309,7 @@ describe('AsyncInjector', function () {
                     throw new Error("This should not be executed");
                 }]);
                 injector.inject(['for_not_found', function (for_not_found) {
-                    return new Promise(function () {});
+
                 }]);
             }).should.throw();
         });

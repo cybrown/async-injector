@@ -102,12 +102,7 @@
         var _this = this;
         this._cache[name] = this.Promise.all(this._factories[name].dependencies.map(function (dependency) {
             return _this._resolve(dependency);
-        })).spread(this._factories[name].factory).then(function (value) {
-            if (value === undefined) {
-                console.log('Factory ' + name + ' has return undefined.');
-            }
-            return value;
-        });
+        })).spread(this._factories[name].factory);
         return this._cache[name];
     };
 
