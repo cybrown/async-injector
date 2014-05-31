@@ -1,0 +1,37 @@
+{
+  "name": "async-injector",
+  "main": "async-injector.min.js",
+  "version": "0.3.0",
+  "homepage": "https://github.com/cybrown/async-injector",
+  "authors": [
+    "Cy Brown <cy.brown59@gmail.com>"
+  ],
+  "description": "Asynchronous dependency injection, with an angular like API.",
+  "moduleType": [
+    "amd",
+    "globals",
+    "node"
+  ],
+  "keywords": [
+    "async-injector",
+    "di",
+    "dependency",
+    "injection",
+    "service",
+    "container",
+    "ioc",
+    "inversion",
+    "of",
+    "control",
+    "injection",
+    "component"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
