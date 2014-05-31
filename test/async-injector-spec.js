@@ -278,31 +278,6 @@ describe('AsyncInjector', function () {
             });
         });
 
-        it ('should reject the promise on timeout', function (done) {
-            injector.factory('never', [function () {
-                return Promise.delay(100);
-            }]);
-            injector.injectTimeout(50, ['never', function (never) {
-
-            }]).catch(function () {
-                done();
-            });
-        });
-
-        it ('should cancel a callback if timeout is reached', function (done) {
-            injector.factory('never2', [function () {
-                return Promise.delay(150);
-            }]);
-            injector.injectTimeout(100, ['never2', function (never2) {
-                return new Promise(function () {});
-            }]).then(function () {
-                done(new Error('should not be executed'));
-            }).catch(function (err) {
-
-            });
-            setTimeout(done, 150);
-        });
-
         it ('should throw an error if a component is not found', function () {
             (function () {
                 injector.factory('for_not_found', ['not_found', function (not_found) {
@@ -311,7 +286,7 @@ describe('AsyncInjector', function () {
                 injector.inject(['for_not_found', function (for_not_found) {
 
                 }]);
-            }).should.throw();
+            }).should.throw(/does not exists/);
         });
     });
 });

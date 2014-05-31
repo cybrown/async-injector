@@ -34,17 +34,18 @@
         }
     };
 
+    var injectableToFunction = function (injectable) {
+        return typeof injectable === 'function' ? injectable : injectable[injectable.length - 1];
+    };
+
+    var injectableToDependencies = function (injectable) {
+        return typeof injectable === 'function' ? getArgNames(injectable) : injectable.slice(0, injectable.length - 1);
+    };
+
     var AsyncInjector = function (Promise) {
         this.Promise = Promise;
         this._factories = {};
         this._cache = {};
-    };
-
-    AsyncInjector.prototype.factory = function (name, injectable) {
-        assert(typeof name === 'string', 'Name should be a string');
-        assertInjectable(injectable);
-        assert(!this._factories.hasOwnProperty(name), 'Dependency ' + name + ' already defined.');
-        return typeof injectable === 'function' ? this._addFactory(name, injectable, getArgNames(injectable)) : this._addInjectableArray(name, injectable);
     };
 
     AsyncInjector.prototype.config = function (hash) {
@@ -61,49 +62,27 @@
         });
     };
 
-    AsyncInjector.prototype.injectTimeout = function (timeout, injectable) {
-        return this.inject(injectable).timeout(timeout);
-    };
-
-    AsyncInjector.prototype.inject = function (injectable) {
+    AsyncInjector.prototype.factory = function (name, injectable) {
+        assert(typeof name === 'string', 'Name should be a string');
         assertInjectable(injectable);
-        return typeof injectable === 'function' ? this._inject(getArgNames(injectable), injectable) : this._injectArray(injectable);
-    };
-
-    AsyncInjector.prototype._injectArray = function (array) {
-        return this._inject(array.slice(0, array.length - 1), array[array.length - 1]);
-    };
-
-    AsyncInjector.prototype._inject = function (dependencies, func) {
-        var _this = this;
-        return this.Promise.all(dependencies.map(function (depName) {
-            return _this._resolve(depName);
-        })).spread(func);
-    };
-
-    AsyncInjector.prototype._addInjectableArray = function (name, array) {
-        return this._addFactory(name, array[array.length - 1], array.slice(0, array.length - 1));
-    };
-
-    AsyncInjector.prototype._addFactory = function (name, factory, dependencies) {
+        assert(!this._factories.hasOwnProperty(name), 'Dependency ' + name + ' already defined.');
         this._factories[name] = {
-            factory: factory,
-            dependencies: dependencies
+            factory: injectableToFunction(injectable),
+            dependencies: injectableToDependencies(injectable)
         };
         return this;
     };
 
-    AsyncInjector.prototype._resolve = function (name) {
-        return this._cache.hasOwnProperty(name) ? this._cache[name] : this._resolveFactory(name);
-    };
-
-    AsyncInjector.prototype._resolveFactory = function (name) {
-        assert(this._factories.hasOwnProperty(name), 'Dependency ' + name + ' does not exists.');
+    AsyncInjector.prototype.inject = function (injectable) {
+        assertInjectable(injectable);
         var _this = this;
-        this._cache[name] = this.Promise.all(this._factories[name].dependencies.map(function (dependency) {
-            return _this._resolve(dependency);
-        })).spread(this._factories[name].factory);
-        return this._cache[name];
+        return this.Promise.all(injectableToDependencies(injectable).map(function (depName) {
+            assert(_this._factories.hasOwnProperty(depName), 'Dependency ' + depName + ' does not exists.');
+            if (!_this._cache.hasOwnProperty(depName)) {
+                _this._cache[depName] = _this.inject(_this._factories[depName].dependencies.concat(_this._factories[depName].factory));
+            }
+            return _this._cache[depName];
+        })).spread(injectableToFunction(injectable));
     };
 
     if (module && module.exports) {
