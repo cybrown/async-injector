@@ -22,8 +22,8 @@
         });
     };
 
-    var AsyncInjector = function (Q) {
-        this.Q = Q;
+    var AsyncInjector = function (Promise) {
+        this.Promise = Promise;
         this._factories = {};
         this._values = {};
     };
@@ -49,7 +49,7 @@
     };
 
     AsyncInjector.prototype.injectTimeout = function (timeout, injectable) {
-        return this.Q.timeout(this.inject(injectable), timeout);
+        return this.inject(injectable).timeout(timeout);
     };
 
     AsyncInjector.prototype.inject = function (injectable) {
@@ -65,7 +65,7 @@
 
     AsyncInjector.prototype._inject = function (dependencies, func) {
         var _this = this;
-        return this.Q.all(dependencies.map(function (depName) {
+        return this.Promise.all(dependencies.map(function (depName) {
             return _this._resolve(depName);
         })).spread(func);
     };
@@ -92,7 +92,7 @@
     AsyncInjector.prototype._resolveFactory = function (name) {
         assert(this._factories.hasOwnProperty(name), 'Dependency ' + name + ' does not exists.');
         var _this = this;
-        this._values[name] = this.Q.all(this._factories[name].dependencies.map(function (dependency) {
+        this._values[name] = this.Promise.all(this._factories[name].dependencies.map(function (dependency) {
             return _this._resolve(dependency);
         })).spread(this._factories[name].factory).then(function (value) {
             if (value === undefined) {

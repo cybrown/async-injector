@@ -1,7 +1,7 @@
 var AsyncInjector = require('../index');
-var Q = require('q');
+var Promise = require('bluebird');
 
-var injector = new AsyncInjector(Q);
+var injector = new AsyncInjector(Promise);
 
 injector.factory('add', function () {
     return function (a, b) {
@@ -10,7 +10,7 @@ injector.factory('add', function () {
 });
 
 injector.factory('async_add', function () {
-    return Q.promise(function (resolve, reject) {
+    return new Promise(function (resolve, reject) {
         setTimeout(function () {
             resolve(function (a, b) {
                 return a + b;

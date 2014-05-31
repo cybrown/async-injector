@@ -1,9 +1,9 @@
-var Q = require('q');
+var Promise = require('bluebird');
 var AsyncInjector = require('../index');
 
 describe('AsyncInjector', function () {
 
-    var injector = new AsyncInjector(Q);
+    var injector = new AsyncInjector(Promise);
 
     describe ('Using API as documented', function () {
 
@@ -84,7 +84,7 @@ describe('AsyncInjector', function () {
 
         it ('should set a factory returning a promise', function () {
             injector.factory('apromise', function () {
-                return Q.promise(function (resolve, reject) {
+                return new Promise(function (resolve, reject) {
                     resolve('apromise-value');
                 });
             });
@@ -122,12 +122,12 @@ describe('AsyncInjector', function () {
         it ('should set a component with a dependency', function () {
             injector.factory('b', ['c', function (c) {
                 c.should.eql('C');
-                return Q.promise(function (resolve, reject) {
+                return new Promise(function (resolve, reject) {
                     resolve('B');
                 });
             }]);
             injector.factory('c', function () {
-                return Q.promise(function (resolve, reject) {
+                return new Promise(function (resolve, reject) {
                     resolve('C');
                 });
             });
@@ -136,12 +136,12 @@ describe('AsyncInjector', function () {
         it ('should set a component with a dependency an function decompilation', function (done) {
             injector.factory('b22', ['c22', function (c22) {
                 c22.should.eql('C22');
-                return Q.promise(function (resolve, reject) {
+                return new Promise(function (resolve, reject) {
                     resolve('B22');
                 });
             }]);
             injector.factory('c22', function () {
-                return Q.promise(function (resolve, reject) {
+                return new Promise(function (resolve, reject) {
                     resolve('C22');
                 });
             });
@@ -159,7 +159,7 @@ describe('AsyncInjector', function () {
 
         it ('should set a component with a dependency already loaded', function () {
             injector.factory('d', ['a', function (a) {
-                return Q.promise(function (resolve, reject) {
+                return new Promise(function (resolve, reject) {
                     resolve({a: a});
                 });
             }]);
@@ -200,7 +200,7 @@ describe('AsyncInjector', function () {
         it ('should try to load a component only once', function (done) {
             injector.factory('once', [function () {
                 setTimeout(done);
-                return Q.delay(10).then(function () {
+                return Promise.delay(10).then(function () {
                     return null;
                 });
             }]);
@@ -210,7 +210,7 @@ describe('AsyncInjector', function () {
 
         it ('should get a loading component', function (done) {
             injector.factory('once2', function () {
-                return Q.delay(10).then(function () {
+                return Promise.delay(10).then(function () {
                     return null;
                 });
             });
@@ -267,7 +267,7 @@ describe('AsyncInjector', function () {
 
         it ('should reject the promise on timeout', function (done) {
             injector.factory('never', [function () {
-                return Q.promise(function () {});
+                return new Promise(function () {});
             }]);
             injector.injectTimeout(10, ['never', function (never) {
 
@@ -278,12 +278,12 @@ describe('AsyncInjector', function () {
 
         it ('should cancel a callback if timeout is reached', function (done) {
             injector.factory('never2', [function () {
-                return Q.delay(150).then(function () {
+                return Promise.delay(150).then(function () {
                     return 1;
                 });
             }]);
             injector.injectTimeout(100, ['never2', function (never2) {
-                return Q.promise(function () {});
+                return new Promise(function () {});
             }]).then(function () {
                 done(new Error('should not be executed'));
             }).catch(function (err) {
@@ -298,7 +298,7 @@ describe('AsyncInjector', function () {
                     throw new Error("This should not be executed");
                 }]);
                 injector.inject(['for_not_found', function (for_not_found) {
-                    return Q.promise(function () {});
+                    return new Promise(function () {});
                 }]);
             }).should.throw();
         });

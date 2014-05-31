@@ -1,7 +1,7 @@
 var AsyncInjector = require('../index');
-var Q = require('q');
+var Promise = require('bluebird');
 
-var injector = new AsyncInjector(Q);
+var injector = new AsyncInjector(Promise);
 
 // Set configuration values
 injector.config({
@@ -18,7 +18,7 @@ injector.factory('authenticate', function (adminLogin, adminPassword) {
             cb(null, false);
         }
     };
-    return Q.promise(function (resolve, reject) {
+    return new Promise(function (resolve, reject) {
         resolve(authenticate);
     });
 });
