@@ -1,4 +1,4 @@
-var AsyncInjector = require('../index');
+var AsyncInjector = require('../async-injector');
 var Promise = require('bluebird');
 
 var injector = new AsyncInjector(Promise);

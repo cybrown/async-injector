@@ -12,11 +12,7 @@ module.exports = function(grunt) {
         },
         jshint: {
             all: {
-                src: ['src/index.js'],
-                directives: {
-                    node: true,
-                    nomen: true
-                }
+                src: ['src/**/*.js']
             }
         }
     });
