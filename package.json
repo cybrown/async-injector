@@ -24,7 +24,7 @@
   "dependencies": {
   },
   "devDependencies": {
-    "bluebird": "^1.2.4",
+    "bluebird": "~1.2.4",
     "grunt-contrib-jshint": "0.10.0",
     "should": "~2.1.1",
     "grunt-mocha-cli": "~1.4.0",

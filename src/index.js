@@ -14,6 +14,7 @@
             throw new Error(message);
         }
     };
+
     var assertEach = function (array, func, message) {
         array.forEach(function (v) {
             if (!func(v)) {
@@ -22,15 +23,27 @@
         });
     };
 
+    var assertInjectable = function (injectable) {
+        if (typeof injectable === 'function') {
+
+        } else if (Array.isArray(injectable)) {
+            assert(typeof injectable[injectable.length - 1] === 'function', 'Last element of array must be a function');
+            assertEach(injectable.slice(0, injectable.length - 1), function (it) {return typeof it === 'string';}, 'Dependency name must be a string');
+        } else {
+            assert(false, 'Injectable must be a function or an array');
+        }
+    };
+
     var AsyncInjector = function (Promise) {
         this.Promise = Promise;
         this._factories = {};
-        this._values = {};
+        this._cache = {};
     };
 
     AsyncInjector.prototype.factory = function (name, injectable) {
         assert(typeof name === 'string', 'Name should be a string');
-        assert((typeof injectable === 'function') || Array.isArray(injectable), 'Factory ' + name + ' is not injectable.');
+        assertInjectable(injectable);
+        assert(!this._factories.hasOwnProperty(name), 'Dependency ' + name + ' already defined.');
         return typeof injectable === 'function' ? this._addFactory(name, injectable, getArgNames(injectable)) : this._addInjectableArray(name, injectable);
     };
 
@@ -53,13 +66,11 @@
     };
 
     AsyncInjector.prototype.inject = function (injectable) {
-        assert((typeof injectable === 'function') || Array.isArray(injectable), 'Injectable must be a function or an array');
+        assertInjectable(injectable);
         return typeof injectable === 'function' ? this._inject(getArgNames(injectable), injectable) : this._injectArray(injectable);
     };
 
     AsyncInjector.prototype._injectArray = function (array) {
-        assert(typeof array[array.length - 1] === 'function', 'Factory must be a function');
-        assertEach(array.slice(0, array.length - 1), function (it) {return typeof it === 'string';}, 'Dependency name must be a string');
         return this._inject(array.slice(0, array.length - 1), array[array.length - 1]);
     };
 
@@ -75,9 +86,6 @@
     };
 
     AsyncInjector.prototype._addFactory = function (name, factory, dependencies) {
-        assert(typeof factory === 'function', 'Factory must be a function.');
-        assertEach(dependencies, function (it) {return typeof it === 'string';}, 'Dependency name should be a string');
-        assert(!this._factories.hasOwnProperty(name), 'Dependency ' + name + ' already defined.');
         this._factories[name] = {
             factory: factory,
             dependencies: dependencies
@@ -86,13 +94,13 @@
     };
 
     AsyncInjector.prototype._resolve = function (name) {
-        return this._values.hasOwnProperty(name) ? this._values[name] : this._resolveFactory(name);
+        return this._cache.hasOwnProperty(name) ? this._cache[name] : this._resolveFactory(name);
     };
 
     AsyncInjector.prototype._resolveFactory = function (name) {
         assert(this._factories.hasOwnProperty(name), 'Dependency ' + name + ' does not exists.');
         var _this = this;
-        this._values[name] = this.Promise.all(this._factories[name].dependencies.map(function (dependency) {
+        this._cache[name] = this.Promise.all(this._factories[name].dependencies.map(function (dependency) {
             return _this._resolve(dependency);
         })).spread(this._factories[name].factory).then(function (value) {
             if (value === undefined) {
@@ -100,7 +108,7 @@
             }
             return value;
         });
-        return this._values[name];
+        return this._cache[name];
     };
 
     if (module && module.exports) {
