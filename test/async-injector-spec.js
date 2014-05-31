@@ -3,7 +3,7 @@ var AsyncInjector = require('../index');
 
 describe('AsyncInjector', function () {
 
-    var injector = new AsyncInjector(Promise);
+    var injector = new AsyncInjector();
 
     describe ('Using API as documented', function () {
 

@@ -1,13 +1,13 @@
 (function (root, factory) {
     // UMD provided by http://bob.yexley.net/umd-javascript-that-runs-anywhere/
     if (typeof define === "function" && define.amd) {
-        define([], factory);
+        define(['bluebird'], factory);
     } else if (typeof exports === "object") {
-        module.exports = factory();
+        module.exports = factory(require('bluebird'));
     } else {
-        root.AsyncInjector = factory();
+        root.AsyncInjector = factory(Promise);
     }
-}(this, function () {
+}(this, function (Promise) {
     'use strict';
 
     var getArgNames = function (func) {
@@ -49,8 +49,7 @@
         return typeof injectable === 'function' ? getArgNames(injectable) : injectable.slice(0, injectable.length - 1);
     };
 
-    var AsyncInjector = function (Promise) {
-        this.Promise = Promise;
+    var AsyncInjector = function () {
         this._factories = {};
         this._cache = {};
         this.log = function (str) {
@@ -99,7 +98,7 @@
 
     AsyncInjector.prototype._inject = function (dependencies, func) {
         var _this = this;
-        return this.Promise.all(dependencies.map(function (depName) {
+        return Promise.all(dependencies.map(function (depName) {
             assert(_this._factories.hasOwnProperty(depName), 'Dependency ' + depName + ' does not exists.');
             if (!_this._cache.hasOwnProperty(depName)) {
                 _this._cache[depName] = _this._inject(_this._factories[depName].dependencies, _this._factories[depName].factory);
