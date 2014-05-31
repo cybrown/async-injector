@@ -1,4 +1,4 @@
-AsyncInjector [![Build Status](https://travis-ci.org/cybrown/injectorme.png?branch=master)](https://travis-ci.org/cybrown/injectorme)
+AsyncInjector [![Build Status](https://travis-ci.org/cybrown/async-injector.png?branch=master)](https://travis-ci.org/cybrown/async-injector)
 ======
 Simple asynchronous dependency container and injector.
 
