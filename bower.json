@@ -1,7 +1,7 @@
 {
   "name": "async-injector",
   "main": "async-injector.min.js",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "homepage": "https://github.com/cybrown/async-injector",
   "authors": [
     "Cy Brown <cy.brown59@gmail.com>"
