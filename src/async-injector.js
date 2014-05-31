@@ -1,4 +1,13 @@
-(function () {
+(function (root, factory) {
+    // UMD provided by http://bob.yexley.net/umd-javascript-that-runs-anywhere/
+    if (typeof define === "function" && define.amd) {
+        define([], factory);
+    } else if (typeof exports === "object") {
+        module.exports = factory();
+    } else {
+        root.AsyncInjector = factory();
+    }
+}(this, function () {
     'use strict';
 
     var getArgNames = function (func) {
@@ -107,10 +116,5 @@
         })).spread(func);
     };
 
-    if (module && module.exports) {
-        module.exports = AsyncInjector;
-    } else if (window) {
-        window.AsyncInjector = AsyncInjector;
-    }
-
-})();
+    return AsyncInjector;
+}));
