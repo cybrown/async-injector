@@ -79,21 +79,21 @@
 
     AsyncInjector.prototype.inject = function (injectable) {
         var start = Date.now();
+        assertInjectable(injectable);
         var _this = this;
         _this.log('Starting...');
-        return this._inject(injectable).then(function (data) {
+        return this._inject(injectableToDependencies(injectable), injectableToFunction(injectable)).then(function (data) {
             _this.log('Started in ' + (Date.now() - start) + 'ms');
             return data;
         });
     };
 
-    AsyncInjector.prototype._inject = function (injectable) {
-        assertInjectable(injectable);
+    AsyncInjector.prototype._inject = function (dependencies, func) {
         var _this = this;
-        return this.Promise.all(injectableToDependencies(injectable).map(function (depName) {
+        return this.Promise.all(dependencies.map(function (depName) {
             assert(_this._factories.hasOwnProperty(depName), 'Dependency ' + depName + ' does not exists.');
             if (!_this._cache.hasOwnProperty(depName)) {
-                _this._cache[depName] = _this._inject(_this._factories[depName].dependencies.concat(_this._factories[depName].factory));
+                _this._cache[depName] = _this._inject(_this._factories[depName].dependencies, _this._factories[depName].factory);
             }
             _this.info('Loading ' + depName);
             _this._factories[depName].startTime = Date.now();
@@ -104,7 +104,7 @@
                 }
                 return value;
             });
-        })).spread(injectableToFunction(injectable));
+        })).spread(func);
     };
 
     if (module && module.exports) {
